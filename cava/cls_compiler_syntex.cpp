@@ -51,7 +51,7 @@ void cls_compiler_syntex::statement_copy(cls_compiler_command& cmd,cls_compiler_
 	cmd.seg_re = item_re.seg;
 	if (item_re.p_3 != 0)
 	{
-		if (item_re.p_4 == 1)
+		if (item_re.p_4 <= 1)
 			cmd.ct_re = ctype_pointer;
 		else if (item_re.p_4 == 2)
 			cmd.ct_re = ctype_pointer_random;
@@ -244,15 +244,50 @@ void cls_compiler_syntex::do_assign_computing(vector<cls_compiler_syntex_item> n
 		break;
 	}
 
-	statement_copy(cmd,now[1],now[3],now[1]);
-	if (cmd.re == -1)
+	if (now[1].b_left == true)
 	{
-		error("类型未声明！");
+		cls_compiler_command cmd1;
+		cmd1.oper = command_get;
+		cmd1.ptr1 = now[1].p_1;
+		cmd1.seg1  = now[1].seg;
+		cmd1.ct1 = get_command_type(now[1].p_2,now[1].p_3+1,now[1].p_4);
+		cmd1.re = cstm.get_tmp_pos(now[1].p_2,now[1].p_3,now[1].p_4);
+		cmd1.ct_re = get_command_type(now[1].p_2,now[1].p_3,now[1].p_4);
+		cmd1.seg_re = now[1].seg;
+
+		des.push_back(cmd1);
+		statement_copy(cmd,now[1],now[3],now[1]);
+		if (cmd.re == -1)
+		{
+			error("类型未声明！");
+		}
+
+		cmd.ct_re = get_command_type(now[1].p_2,now[1].p_3,now[1].p_4);
+		des.push_back(cmd);
+
+		cmd.oper = command_pointer_set;
+		cmd.ptr1 = cmd1.re;
+		cmd.ct1 = cmd1.ct_re;
+		cmd.seg1 = cmd1.seg1;
+		cmd.re  = now[1].p_1;
+		now[1].p_3++;
+		cmd.ct_re = get_command_type(now[1].p_2,now[1].p_3,now[1].p_4);
+		now[1].p_3--;
+		cmd.seg_re = now[1].seg;
+
+		des.push_back(cmd);
 	}
+	else
+	{
+		statement_copy(cmd,now[1],now[3],now[1]);
+		if (cmd.re == -1)
+		{
+			error("类型未声明！");
+		}
 
-	cmd.ct_re = get_command_type(now[1].p_2,now[1].p_3,now[1].p_4);
-
-	des.push_back(cmd);
+		cmd.ct_re = get_command_type(now[1].p_2,now[1].p_3,now[1].p_4);
+		des.push_back(cmd);
+	}
 
 	re.copy_from(now[1]);
 }
@@ -778,6 +813,7 @@ bool cls_compiler_syntex::do_run_real(vector<cls_compiler_syntex_item>& now,int 
 
 					cls_compiler_command cmd;
 					cmd.oper = command_set;
+
 					statement_copy(cmd,now[2].items[cnt].items[0],now[2].items[cnt].items[0],now[2].items[cnt].items[0]);
 					cmd.re = cstm.get_name_info(item.context).memory_ptr;
 					cmd.seg_re = item.seg;
@@ -921,99 +957,137 @@ bool cls_compiler_syntex::do_run_real(vector<cls_compiler_syntex_item>& now,int 
 		break;
 	case 1040:
 		{
-			int level = now[1].p_1;
-
-			if (now[2].p_3 < level)
-				error("指针层数错误");
-
-			int pos = now[2].p_1;
-			int sag = now[2].seg;
-			int ct = now[2].p_2;
-			for(int cnt=0;cnt<level;cnt++)
+			if ( now[1].p_1!=  0)
 			{
+				int level = now[1].p_1;
+				int mem_level = level;
+				level -- ;
+			
+				if (now[2].p_3 < level)
+					error("指针层数错误");
+
+				int pos = now[2].p_1;
+				int sag = now[2].seg;
+				int ct = now[2].p_2;
+				for(int cnt=0;cnt<level;cnt++)
+				{
+					cls_compiler_command cmd;
+					cmd.oper = command_get;
+					cmd.ptr1 = pos;
+					cmd.ct1 = get_command_type(now[2].p_2,now[2].p_3,now[2].p_4);
+					cmd.seg1 = sag;
+					cmd.re = cstm.get_tmp_pos(now[2].p_2,level - cnt - 1,now[2].p_4);
+
+					cmd.ct_re = get_command_type(now[2].p_2,now[2].p_3 - cnt - 1,now[2].p_4);
+
+					if (cstm.tables.size() == 1)
+						cmd.seg_re = seg_const;
+					else
+						cmd.seg_re = seg_stack;
+
+					if (cmd.re == -1)
+					{
+						error("类型未声明！");
+					}
+
+					pos = cmd.re;
+					des.push_back(cmd);
+				}
+
+				re.seg = now[2].seg;
+				re.p_1 = pos;
+				re.p_2 = now[2].p_2;
+				re.p_3 = now[2].p_3 - mem_level;
+				re.p_4 = now[2].p_4;
+				re.real_pointer_level = now[2].p_3;
+
+				re.b_left = true;
+			}
+			else
+			{
+				re.copy_from(now[2]);
+				re.p_3--;
+			}
+		}
+		break;
+	case 1041:
+		{
+			if (now[1].b_left == false)
+			{
+				re.copy_from(now[1]);
+				re.p_3 --;
+
 				cls_compiler_command cmd;
-				cmd.oper = command_get;
-				cmd.ptr1 = pos;
-				cmd.ct1 = get_command_type(now[2].p_2,now[2].p_3,now[2].p_4);
-				cmd.seg1 = sag;
-				cmd.re = cstm.get_tmp_pos(now[2].p_2,level - cnt - 1,now[2].p_4);
-
-				cmd.ct_re = get_command_type(now[2].p_2,now[2].p_3 - cnt - 1,now[2].p_4);
-
-				if (cstm.tables.size() == 1)
-					cmd.seg_re = seg_const;
-				else
-					cmd.seg_re = seg_stack;
+				cmd.oper = command_add;
+				cmd.ptr1 = now[1].p_1;
+				cmd.seg1 = now[1].seg;
+				cmd.ct1 = get_command_type(now[1].p_2,now[1].p_3,now[1].p_4);
+				cmd.ptr2 = now[3].p_1;
+				cmd.seg2 = now[3].seg;
+				cmd.ct2 =get_command_type(now[3].p_2,now[3].p_3,now[1].p_4);
+				cmd.re  = cstm.get_tmp_pos(4);
 
 				if (cmd.re == -1)
 				{
 					error("类型未声明！");
 				}
 
-				pos = cmd.re;
+				cmd.seg_re = cmd.seg1;
+				cmd.ct_re = cmd.ct1;
 				des.push_back(cmd);
-			}
 
-			re.seg = now[2].seg;
-			re.p_1 = pos;
-			re.p_2 = now[2].p_2;
-			re.p_3 = now[2].p_3 - level;
-			re.p_4 = now[2].p_4;
-			re.real_pointer_level = now[2].p_3;
-		}
-		break;
-	case 1041:
-		{
-			if (now[1].p_3 == 0)
-				error("数据指针层数错误");
-
-			cls_compiler_command cmd;
-			cmd.oper = command_add;
-			cmd.ptr1 = now[1].p_1;
-			cmd.seg1 = now[1].seg;
-			cmd.ct1 = get_command_type(now[1].p_2,now[1].p_3,now[1].p_4);
-			cmd.ptr2 = now[3].p_1;
-			cmd.seg2 = now[3].seg;
-			cmd.ct2 =get_command_type(now[3].p_2,now[3].p_3,now[1].p_4);
-			cmd.re  = cstm.get_tmp_pos(4);
-
-			if (cmd.re == -1)
-			{
-				error("类型未声明！");
-			}
-
-			cmd.seg_re = cmd.seg1;
-			cmd.ct_re = cmd.ct1;
-			des.push_back(cmd);
-
-			cmd.oper = command_get;
-			cmd.ptr1 = cmd.re;
-			cmd.seg1 = cmd.seg_re;
-			cmd.ct1 = cmd.ct_re;
-			cmd.re = cstm.get_tmp_pos(now[1].p_2,now[1].p_3,now[1].p_4);
-
-			if (cmd.re == -1)
-			{
-				error("类型未声明！");
-			}
-
-			re.copy_from(now[1]);
-			re.p_1 = cmd.re;
-			re.p_3--;
-			re.p_4 = false;
-
-			if (now[1].real_pointer_level == 0)
-			{
-				re.real_pointer_level = now[1].p_3;
+				re.p_1 = cmd.re;
+				re.b_left = true;
 			}
 			else
 			{
-				re.real_pointer_level = now[1].real_pointer_level;
+				if (now[1].p_3 == 0)
+					error("数据指针层数错误");
+
+				cls_compiler_command cmd;
+
+				cmd.oper = command_add;
+				cmd.ptr1 = now[1].p_1;
+				cmd.seg1 = now[1].seg;
+				cmd.ct1 = get_command_type(now[1].p_2,now[1].p_3,now[1].p_4);
+				cmd.ptr2 = now[3].p_1;
+				cmd.seg2 = now[3].seg;
+				cmd.ct2 =get_command_type(now[3].p_2,now[3].p_3,now[1].p_4);
+				cmd.re  = cstm.get_tmp_pos(4);
+
+				if (cmd.re == -1)
+				{
+					error("类型未声明！");
+				}
+
+				cmd.seg_re = cmd.seg1;
+				cmd.ct_re = cmd.ct1;
+
+				if (cmd.re == -1)
+				{
+					error("类型未声明！");
+				}
+
+				re.copy_from(now[1]);
+				re.p_1 = cmd.re;
+				re.p_3--;
+				re.p_4 = false;
+
+				if (now[1].real_pointer_level == 0)
+				{
+					re.real_pointer_level = now[1].p_3;
+				}
+				else
+				{
+					re.real_pointer_level = now[1].real_pointer_level;
+				}
+
+				cmd.ct_re = get_command_type(now[1].p_2,re.p_3,now[1].p_4);
+
+				des.push_back(cmd);
+
+				re.b_left = true;
 			}
-
-			cmd.ct_re = get_command_type(now[1].p_2,re.p_3,now[1].p_4);
-
-			des.push_back(cmd);
 		}
 		break;
 	case 1042:
@@ -1130,7 +1204,25 @@ bool cls_compiler_syntex::do_run_real(vector<cls_compiler_syntex_item>& now,int 
 		break;
 
 	case 1048:
-		re.copy_from(now[1]);
+		{
+			re.copy_from(now[1]);
+			if (now[1].b_left == true)
+			{
+				cls_compiler_command cmd1;
+				cmd1.oper = command_get;
+				cmd1.ptr1 = now[1].p_1;
+				cmd1.seg1  = now[1].seg;
+				cmd1.ct1 = get_command_type(now[1].p_2,now[1].p_3+1,now[1].p_4);
+				cmd1.re = cstm.get_tmp_pos(now[1].p_2,now[1].p_3,now[1].p_4);
+				cmd1.ct_re = get_command_type(now[1].p_2,now[1].p_3,now[1].p_4);
+				cmd1.seg_re = now[1].seg;
+
+				des.push_back(cmd1);
+				
+				re.p_1 = cmd1.re;
+				re.seg = cmd1.seg_re;
+			}
+		}
 		break;
 	case 1049:
 		{
@@ -1171,12 +1263,7 @@ bool cls_compiler_syntex::do_run_real(vector<cls_compiler_syntex_item>& now,int 
 				error("类型不符");
 			}
 
-			if (now[1].p_3 != now[3].p_3)
-			{
-				error("指针层数不符合");
-			}
-
-			if (now[1].p_4 > 0 && now[3].p_4 == 0)
+			if (now[1].p_3 != 0 && now[1].p_4 > 0 && now[3].p_4 == 0)
 			{
 				error("智能指针不能赋给非智能指针！");
 			}
@@ -1224,10 +1311,23 @@ bool cls_compiler_syntex::do_run_real(vector<cls_compiler_syntex_item>& now,int 
 			}
 
 			cls_compiler_command cmd;
-			cmd.oper = command_set;
-			statement_copy(cmd,now[3],now[3],now[1]);
 
-			des.push_back(cmd);
+			if (now[1].b_left == true)
+			{
+				cmd.oper = command_pointer_set;
+				now[1].p_3++;
+				statement_copy(cmd,now[3],now[3],now[1]);
+				now[1].p_3--;
+
+				des.push_back(cmd);
+			}
+			else
+			{
+				cmd.oper = command_set;
+				statement_copy(cmd,now[3],now[3],now[1]);
+
+				des.push_back(cmd);
+			}
 
 			re.copy_from(now[1]);
 		}
@@ -1818,7 +1918,15 @@ bool cls_compiler_syntex::do_run_real(vector<cls_compiler_syntex_item>& now,int 
 				cmd.seg_re = seg_stack;
 
 			cmd.re = cstm.get_tmp_pos(now[2].p_1,now[2].p_2+1,now[2].p_3);
-
+			
+			//cls_compiler_symbol_table_item item;
+			//item.memory_ptr = cmd.re;
+			//item.n_const = 1;
+			//item.type = type_var;
+			//item.c_type = ctype_pointer;
+			//item.context = fn_get_random_name("new_const",10);
+			//cstm.add_name_info(item);
+	
 			if (cmd.re == -1)
 			{
 				error("类型未声明！");
@@ -2084,6 +2192,35 @@ bool cls_compiler_syntex::do_run_real(vector<cls_compiler_syntex_item>& now,int 
 			//留给短路表达式！
 		}
 		break;
+	case 1147:
+		{
+			re.p_1 = 1;
+		}
+		break;
+	case 1148:
+		{
+			re.p_1  = now[2].p_1 + 1;
+		}
+		break;
+	case 1149:
+		re.copy_from(now[2]);
+		break;
+	case 1150:
+		{
+			cls_compiler_symbol_table_item item;
+			if (false == cstm.get_name_info(now[1].str,item))
+			{
+				error("变量未声明");
+			}
+
+			re.p_1 = item.memory_ptr;
+			re.seg = item.seg;
+			re.p_2 = item.c_type;
+			re.p_3 = item.pointer_level;
+			re.p_4 = item.n_const;
+			re.b_left = false;
+		}
+		break;
 	default:
 		break;
 	}
@@ -2207,6 +2344,10 @@ bool cls_compiler_syntex::do_run(int do_what)
 			{
 				if (true == do_run_check(now,next_status,re))
 					return true;
+			}
+			else if (do_what == 4)
+			{
+				cout<<next_status<<endl;
 			}
 
 			if (real_status == -1)

@@ -22,7 +22,7 @@ int cls_compiler_symbol_table_manager::get_mem_port(cls_compiler_symbol_table_it
 {
 	if (item.pointer_level != 0)
 	{
-		if (item.n_const == 1)
+		if (item.n_const <= 1)
 			return 4;
 		else 
 			return 8;
@@ -58,6 +58,9 @@ int cls_compiler_symbol_table_manager::get_mem_port(cls_compiler_symbol_table_it
 			break;
 		case ctype_pointer:
 			return 4;
+			break;
+		case ctype_pointer_random:
+			return 8;
 			break;
 		default:
 			for(int cnt=0;cnt<struct_table.table_items.size();cnt++)
@@ -115,7 +118,11 @@ int cls_compiler_symbol_table_manager::get_tmp_pos(int width)
 	}
 
 	int re =n_cur_num;
-	n_cur_num = (1 + n_cur_num/width)*width + width;
+	if (n_cur_num%width != 0)
+		n_cur_num = (1 + n_cur_num/width)*width + width;
+	else 
+		n_cur_num += width;
+
 	return re;
 }
 
@@ -217,7 +224,11 @@ bool cls_compiler_symbol_table_manager::add_name_info(cls_compiler_symbol_table_
 		{	
 			item_set.memory_ptr = n_static_num;
 			item_set.seg = seg_const;
-			n_static_num = (1+n_static_num)/port*port + port;
+			
+			if (n_static_num%port !=0)
+				n_static_num = (1+n_static_num/port)*port + port;
+			else
+				n_static_num += port;
 		}
 
 		const_table.add_name_info(item_set);
@@ -229,7 +240,11 @@ bool cls_compiler_symbol_table_manager::add_name_info(cls_compiler_symbol_table_
 		{	
 			item_set.memory_ptr = n_static_num;
 			item_set.seg = seg_const;
-			n_static_num = (1+n_static_num)/port*port + port;
+
+			if (n_static_num%port !=0)
+				n_static_num = (1+n_static_num/port)*port + port;
+			else
+				n_static_num += port;
 		}
 
 		tables.back().add_name_info(item_set);
@@ -239,7 +254,11 @@ bool cls_compiler_symbol_table_manager::add_name_info(cls_compiler_symbol_table_
 	{
 		item_set.memory_ptr = n_cur_num;
 		item_set.seg = seg_stack;
-		n_cur_num = (n_cur_num+1)/port*port + port;
+
+		if (n_cur_num%port !=0)
+			n_cur_num = (1+n_cur_num/port)*port + port;
+		else
+			n_cur_num += port;
 	}
 
 	tables.back().add_name_info(item_set);

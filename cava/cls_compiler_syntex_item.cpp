@@ -12,6 +12,7 @@ bool cls_compiler_syntex_item::copy_from(const cls_compiler_syntex_item& that)
 	p_3 =that.p_3;
 	p_4 =that.p_4;
 	seg = that.seg;
+	b_left = that.b_left;
 
 	real_pointer_level= that.real_pointer_level;
 
@@ -26,4 +27,5 @@ cls_compiler_syntex_item::cls_compiler_syntex_item(int a_s,int a_t,string a_str)
 	p_1 = p_2 = p_3 = p_4 = 0;
 	seg = seg_none;
 	real_pointer_level = 0;
+	b_left= false;
 }

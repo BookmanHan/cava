@@ -1,117 +1,4 @@
 #pragma once
-//
-//extern static const int ct_null;
-////这里的值和类型转换函数fn_type_trans有关！；
-//extern static const int type_struct ;
-//extern static const int type_var ;
-//extern static const int type_string ;
-//extern static const int type_char ;
-//extern static const int type_const;
-//extern static const int type_oper;
-//extern static const int type_none ;
-//extern static const int type_const_double ;
-//
-//extern static const int ctype_char ;
-//extern static const int ctype_short ;
-//extern static const int ctype_int ;
-//extern static const int ctype_unsigned_char ;
-//extern static const int ctype_unsigned_short ;
-//extern static const int ctype_unsigned_int ;
-//extern static const int ctype_double ;
-//extern static const int ctype_pointer ;
-//extern static const int ctype_pointer_random ;
-//extern static const int ctype_void ;
-//
-//extern static const int seg_none ;
-//extern static const int seg_const ;
-//extern static const int seg_stack ;
-//extern static const int seg_heap ;
-//
-//extern static const int command_nop ;
-//extern static const int command_set ;
-////把ptr1的值给re；
-//extern static const int command_tag ;
-////标签，名字在name中
-//extern static const int command_get ;
-////从ptr1指向的地址处取出内容给re
-//extern static const int command_add ;
-//extern static const int command_minus ;
-//extern static const int command_mutiply ;
-//extern static const int command_divide ;
-//extern static const int command_mod ;
-//extern static const int command_or ;
-//extern static const int command_and ;
-//extern static const int command_xor ;
-//extern static const int command_left ;
-//extern static const int command_right ;
-//extern static const int command_roleft ;
-//extern static const int command_roright ;
-//extern static const int command_larger ;
-//extern static const int command_larger_eql ;
-//extern static const int command_smaller ;
-//extern static const int command_smaller_equ ;
-//extern static const int command_equ ;
-//extern static const int command_non_equ ;
-////把ptr1与ptr2的值相XX结果放到re里面去。逻辑运算正确为1，错误为0
-//extern static const int command_real_set ;
-////把p_1中的值给re，主要是用于指针初始化！
-//extern static const int command_reverse ;
-////把ptr1种的值取反，然后给re
-//extern static const int command_not ;
-////把ptr1种的值取反，然后给re
-//extern static const int command_jump ;
-////通过判断ptr1的值，如果是正确的(>1)则跳到ptr2的地址，否则跳到re的地址。
-//extern static const int command_abs_jump ;
-////绝对跳转到re的地址。
-//extern static const int command_inc ;
-////把re中的值++；
-//extern static const int command_dec ;
-////把re中的值--；
-//extern static const int command_push ;
-////把re的值push。
-//extern static const int command_pop ;
-////把re的值pop
-//extern static const int command_call ;
-////调用函数name，把返回值放到re中，
-//extern static const int command_pre_call ;
-////修改esp的值，修改量在re中。
-//extern static const int command_after_call ;
-////修改esp的值，修改量在re中。ptr2为对方存放结果地址(就是esp处！)，ptr1为自己存放结果的地址！
-//extern static const int command_return ;
-////返回函数值。
-//extern static const int command_get_return ;
-////没有实际用途，可以不考虑。
-//extern static const int command_set_stack_pointer ;
-////没有实际用途，可以不考虑。
-//extern static const int command_neg ;
-////给元素变为负值。
-//extern static const int command_new ;
-////ptr1为指针层数！ptr2为申请数目，注意ct2为神奇类型，re为存放返回结果的地址。
-//extern static const int command_delete ;
-////ptr1为指针层数，re为释放地址的存放的地址！！！功能为减少指针计数，如果计数为1则删除！
-////如果delete的是一个指针类型的内存，得在把指针类型内存的析构后，把指向的位置上的计数-1.
-////如果指向的是栈空间，则缓冲计数不变，然后直到找到为止！
-//extern static const int command_new_add_ref ;
-////ptr1为指针层数，re为增加计数的存放的地址！！！功能为增加指针计数。如果指向的是栈空间，那么继续向下寻找堆空间。
-//extern static const int command_break ;
-//extern static const int command_continue ;
-//extern static const int command_get_pointer ;
-////把ptr1的地址变为绝对地址！放到re中。stack上的要加上esp！
-//extern static const int command_for ;
-//extern static const int command_while ; 
-//extern static const int command_for_re ; 
-//extern static const int command_while_re ;
-////以上四个，只是为了break和continue，没有实际的意义和价值！前两个等同于jump，后面等同于abs_jump;
-//extern static const int command_delete_random ;
-////ptr1为指针层数，re为释放地址的存放的地址！！！功能为减少指针计数，如果计数为1则删除！
-////如果delete的是一个指针类型的内存，得在把指针类型内存的析构后，把指向的位置上的计数-1.
-////如果指向的是栈空间，则缓冲计数不变，然后直到找到为止！
-//extern static const int command_new_add_ref_random ;
-////增加random类型指针的计数！和smart指针原理一样。
-//extern static const int command_switch_re ;
-//extern static const int command_switch ; // 实际上为command_abs_jump
-////没有实际意义，只是为了break和continue。
-
 static const int ct_null = -1;
 //这里的值和类型转换函数fn_type_trans有关！；
 static const int type_struct = 1;
@@ -139,11 +26,9 @@ static const int seg_const = 1;
 static const int seg_stack = 2;
 static const int seg_heap = 3;
 
-
-
 const  int command_nop = 0;
 const  int command_set = 1;
-//把ptr1的值给re；
+//把ptr1指向的值给re地址指向的地址里；
 const  int command_tag = 2;
 //标签，名字在name中
 const  int command_get = 3;
@@ -225,3 +110,5 @@ const  int command_new_add_ref_random = 50;
 const  int command_switch_re = 51;
 const  int command_switch = 52; // 实际上为command_abs_jump
 //没有实际意义，只是为了break和continue。
+const  int command_pointer_set = 53;
+//把ptr1指向的值赋给re指向的值作为地址的单元。

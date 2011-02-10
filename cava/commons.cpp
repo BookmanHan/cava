@@ -1,9 +1,9 @@
 #include "stdafx.h"
 
-string fn_get_random_name()
+string fn_get_random_name(string pre,int num)
 {
-	string str = "rn_";
-	for(int cnt=0;cnt<10;cnt++)
+	string str = "rn_"+pre;
+	for(int cnt=0;cnt<num;cnt++)
 	{
 		char n = rand()%10 + '0';
 		str += n;

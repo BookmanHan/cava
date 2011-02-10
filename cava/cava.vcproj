@@ -179,6 +179,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\cls_compiler_asmer_nasm.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\cls_compiler_command.cpp"
 				>
 			</File>
@@ -223,10 +227,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\consts.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\globle.cpp"
 				>
 			</File>
@@ -258,6 +258,10 @@
 			>
 			<File
 				RelativePath=".\cls_compiler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cls_compiler_asmer_nasm.h"
 				>
 			</File>
 			<File

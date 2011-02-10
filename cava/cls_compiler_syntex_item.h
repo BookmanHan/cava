@@ -19,6 +19,7 @@ public:
 	int p_2;
 	int p_3;
 	int p_4;
+	bool b_left;
 
 	int real_pointer_level;
 
