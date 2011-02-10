@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cava", "cava\cava.vcproj", "{D61FA15A-60AF-47AC-B3EC-123CF1776B5A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yacc", "yacc\yacc.vcproj", "{499FC2DF-1D6F-4846-A439-41992C0BB44D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D61FA15A-60AF-47AC-B3EC-123CF1776B5A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D61FA15A-60AF-47AC-B3EC-123CF1776B5A}.Debug|Win32.Build.0 = Debug|Win32
+		{D61FA15A-60AF-47AC-B3EC-123CF1776B5A}.Release|Win32.ActiveCfg = Release|Win32
+		{D61FA15A-60AF-47AC-B3EC-123CF1776B5A}.Release|Win32.Build.0 = Release|Win32
+		{499FC2DF-1D6F-4846-A439-41992C0BB44D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{499FC2DF-1D6F-4846-A439-41992C0BB44D}.Debug|Win32.Build.0 = Debug|Win32
+		{499FC2DF-1D6F-4846-A439-41992C0BB44D}.Release|Win32.ActiveCfg = Release|Win32
+		{499FC2DF-1D6F-4846-A439-41992C0BB44D}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
